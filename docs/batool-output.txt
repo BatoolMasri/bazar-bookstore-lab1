@@ -61,3 +61,35 @@ CONTAINER ID   IMAGE            COMMAND           CREATED         STATUS        
 172.19.0.1 - - [27/Oct/2026 13:54:00] "GET /info/2?utm_source=chatgpt.com HTTP/1.1" 200 -
 172.19.0.1 - - [27/Oct/2026 13:55:50] "GET /info/2 HTTP/1.1" 200 -
 172.19.0.1 - - [27/Oct/2026 13:55:51] "GET /search/distributed%20systems HTTP/1.1" 200 -
+
+=== Additional Tests - Batool ===
+
+1. SQLite Persistence Test
+Result: PASSED
+Book ID 2 quantity changed from 5 to 7.
+Catalog container was removed and recreated.
+Quantity remained 7 after recreation.
+Original quantity 5 was restored.
+
+2. Book Not Found Test
+Request: GET /info/999
+Expected HTTP Status: 404
+Actual HTTP Status: 404
+Response: {"error": "Book not found"}
+Result: PASSED
+
+3. Catalog Service Failure Test
+Catalog container was stopped.
+Request: GET /info/2
+Expected HTTP Status: 503
+Actual HTTP Status: 503
+Result: PASSED
+Catalog container was restarted successfully.
+
+4. Concurrent Requests Test
+Total Requests: 20
+Maximum Concurrent Workers: 10
+Successful Requests: 20
+Failed Requests: 0
+Result: PASSED
+
