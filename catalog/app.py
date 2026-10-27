@@ -1,5 +1,4 @@
-
-from flask import Flask, jsonify
+from flask import Flask, jsonify, request
 import sqlite3
 import os
 
@@ -11,7 +10,6 @@ DB_PATH = os.getenv(
     os.path.join(os.path.dirname(__file__), "books.db")
 )
 
-# Create the database directory if it does not exist
 os.makedirs(os.path.dirname(os.path.abspath(DB_PATH)), exist_ok=True)
 
 
@@ -31,8 +29,8 @@ def init_db():
             id INTEGER PRIMARY KEY,
             title TEXT NOT NULL,
             topic TEXT NOT NULL,
-            price REAL NOT NULL,
-            quantity INTEGER NOT NULL
+            price REAL NOT NULL CHECK(price >= 0),
+            quantity INTEGER NOT NULL CHECK(quantity >= 0)
         )
     """)
 
@@ -118,11 +116,128 @@ def info(item_id):
     conn.close()
 
     if row is None:
-        return jsonify({
-            "error": "Book not found"
-        }), 404
+        return jsonify({"error": "Book not found"}), 404
 
     return jsonify(dict(row)), 200
+
+
+# Update book price or stock quantity
+@app.route("/update/<int:item_id>", methods=["PUT"])
+def update_book(item_id):
+    data = request.get_json(silent=True)
+
+    if not isinstance(data, dict) or not data:
+        return jsonify({"error": "Valid JSON data is required"}), 400
+
+    if set(data) - {"price", "quantity"}:
+        return jsonify({"error": "Unsupported update field"}), 400
+
+    for field in ("price", "quantity"):
+        if field in data:
+            value = data[field]
+
+            if isinstance(value, bool) or not isinstance(value, (int, float)):
+                return jsonify({"error": f"Invalid {field}"}), 400
+
+            if value < 0:
+                return jsonify({"error": f"{field} cannot be negative"}), 400
+
+            if field == "quantity" and not isinstance(value, int):
+                return jsonify({"error": "Quantity must be an integer"}), 400
+
+    conn = get_connection()
+
+    try:
+        conn.execute("BEGIN IMMEDIATE")
+
+        book = conn.execute(
+            "SELECT id FROM books WHERE id = ?",
+            (item_id,)
+        ).fetchone()
+
+        if book is None:
+            conn.rollback()
+            return jsonify({"error": "Book not found"}), 404
+
+        if "price" in data:
+            conn.execute(
+                "UPDATE books SET price = ? WHERE id = ?",
+                (data["price"], item_id)
+            )
+
+        if "quantity" in data:
+            conn.execute(
+                "UPDATE books SET quantity = ? WHERE id = ?",
+                (data["quantity"], item_id)
+            )
+
+        conn.commit()
+
+        return jsonify({
+            "message": "Book updated successfully",
+            "item_id": item_id
+        }), 200
+
+    except sqlite3.Error:
+        conn.rollback()
+        return jsonify({"error": "Database update failed"}), 500
+
+    finally:
+        conn.close()
+
+
+# Atomically purchase one book from stock
+@app.route("/decrement/<int:item_id>", methods=["POST"])
+def decrement_stock(item_id):
+    conn = get_connection()
+
+    try:
+        # Acquire a write lock before checking stock
+        conn.execute("BEGIN IMMEDIATE")
+
+        book = conn.execute(
+            """
+            SELECT title, price, quantity
+            FROM books
+            WHERE id = ?
+            """,
+            (item_id,)
+        ).fetchone()
+
+        if book is None:
+            conn.rollback()
+            return jsonify({"error": "Book not found"}), 404
+
+        if book["quantity"] <= 0:
+            conn.rollback()
+            return jsonify({"error": "Out of stock"}), 409
+
+        # Conditional update prevents negative stock
+        conn.execute(
+            """
+            UPDATE books
+            SET quantity = quantity - 1
+            WHERE id = ? AND quantity > 0
+            """,
+            (item_id,)
+        )
+
+        conn.commit()
+
+        return jsonify({
+            "message": "Stock decremented successfully",
+            "item_id": item_id,
+            "title": book["title"],
+            "price": book["price"],
+            "remaining_quantity": book["quantity"] - 1
+        }), 200
+
+    except sqlite3.Error:
+        conn.rollback()
+        return jsonify({"error": "Database transaction failed"}), 500
+
+    finally:
+        conn.close()
 
 
 # Start the Catalog microservice
