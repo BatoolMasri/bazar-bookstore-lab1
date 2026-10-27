@@ -210,3 +210,13 @@ __marimo__/
 # Operating system files
 .DS_Store
 Thumbs.db
+
+# SQLite database files
+*.db
+*.db-journal
+*.db-wal
+*.db-shm
+
+# Python cache
+__pycache__/
+*.pyc
