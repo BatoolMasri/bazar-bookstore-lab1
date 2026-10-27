@@ -1,0 +1,63 @@
+BAZAR.COM - LAB 1 TEST OUTPUT
+=== Running Containers ===
+CONTAINER ID   IMAGE            COMMAND           CREATED         STATUS         PORTS                                         NAMES
+8b2fb8268a03   bazar-frontend   "python app.py"   2 minutes ago   Up 2 minutes   0.0.0.0:5000->5000/tcp, [::]:5000->5000/tcp   bazar-frontend-test
+56aac7e189cf   bazar-catalog    "python app.py"   4 minutes ago   Up 4 minutes   0.0.0.0:5001->5001/tcp, [::]:5001->5001/tcp   bazar-catalog-test
+
+=== Catalog Info Test ===
+{
+    "price":  50.0,
+    "quantity":  5,
+    "title":  "RPCs for Noobs"
+}
+=== Frontend Info Test ===
+{
+    "price":  50.0,
+    "quantity":  5,
+    "title":  "RPCs for Noobs"
+}
+=== Frontend Search Test ===
+{
+    "value":  [
+                  {
+                      "id":  1,
+                      "title":  "How to get a good grade in DOS in 40 minutes a day"
+                  },
+                  {
+                      "id":  2,
+                      "title":  "RPCs for Noobs"
+                  }
+              ],
+    "Count":  2
+}
+
+=== Catalog Logs ===
+ * Serving Flask app 'app'
+ * Debug mode: on
+[31m[1mWARNING: This is a development server. Do not use it in a production deployment. Use a production WSGI server instead.[0m
+ * Running on all addresses (0.0.0.0)
+ * Running on http://127.0.0.1:5001
+ * Running on http://172.17.0.2:5001
+[33mPress CTRL+C to quit[0m
+ * Restarting with stat
+ * Debugger is active!
+ * Debugger PIN: 111-508-012
+172.17.0.1 - - [27/Oct/2026 13:51:50] "GET /info/2?utm_source=chatgpt.com HTTP/1.1" 200 -
+172.19.0.3 - - [27/Oct/2026 13:54:00] "GET /info/2 HTTP/1.1" 200 -
+172.17.0.1 - - [27/Oct/2026 13:55:50] "GET /info/2 HTTP/1.1" 200 -
+172.19.0.3 - - [27/Oct/2026 13:55:50] "GET /info/2 HTTP/1.1" 200 -
+172.19.0.3 - - [27/Oct/2026 13:55:51] "GET /search/distributed%20systems HTTP/1.1" 200 -
+=== Frontend Logs ===
+ * Serving Flask app 'app'
+ * Debug mode: on
+[31m[1mWARNING: This is a development server. Do not use it in a production deployment. Use a production WSGI server instead.[0m
+ * Running on all addresses (0.0.0.0)
+ * Running on http://127.0.0.1:5000
+ * Running on http://172.19.0.3:5000
+[33mPress CTRL+C to quit[0m
+ * Restarting with stat
+ * Debugger is active!
+ * Debugger PIN: 205-870-507
+172.19.0.1 - - [27/Oct/2026 13:54:00] "GET /info/2?utm_source=chatgpt.com HTTP/1.1" 200 -
+172.19.0.1 - - [27/Oct/2026 13:55:50] "GET /info/2 HTTP/1.1" 200 -
+172.19.0.1 - - [27/Oct/2026 13:55:51] "GET /search/distributed%20systems HTTP/1.1" 200 -
