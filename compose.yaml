@@ -1,0 +1,59 @@
+services:
+
+  catalog:
+    build:
+      context: ./catalog
+
+    environment:
+      DB_PATH: /data/books.db
+
+    volumes:
+      - catalog_data:/data
+
+    ports:
+      - "5001:5001"
+
+    restart: unless-stopped
+
+
+  order:
+    build:
+      context: ./order
+
+    environment:
+      CATALOG_URL: http://catalog:5001
+      ORDER_DB_PATH: /data/orders.db
+
+    volumes:
+      - order_data:/data
+
+    ports:
+      - "5002:5002"
+
+    depends_on:
+      - catalog
+
+    restart: unless-stopped
+
+
+  frontend:
+    build:
+      context: ./frontend
+
+    environment:
+      CATALOG_URL: http://catalog:5001
+      ORDER_URL: http://order:5002
+
+    ports:
+      - "5000:5000"
+
+    depends_on:
+      - catalog
+      - order
+
+    restart: unless-stopped
+
+
+volumes:
+  catalog_data:
+  order_data:
