@@ -518,6 +518,10 @@ def purchase_book(item_id):
     # Step 10: Successful purchase
     # --------------------------------------
 
+    # Required Lab 1 purchase output message.
+    # Print only after the order is saved successfully.
+    print(f"bought book {title}", flush=True)
+
     return jsonify({
         "message": "Purchase successful",
         "transaction_id": transaction_id,

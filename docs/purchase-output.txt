@@ -1,0 +1,12 @@
+order-1  |  * Serving Flask app 'app'
+order-1  |  * Debug mode: on
+order-1  | [31m[1mWARNING: This is a development server. Do not use it in a production deployment. Use a production WSGI server instead.[0m
+order-1  |  * Running on all addresses (0.0.0.0)
+order-1  |  * Running on http://127.0.0.1:5002
+order-1  |  * Running on http://172.18.0.3:5002
+order-1  | [33mPress CTRL+C to quit[0m
+order-1  |  * Restarting with stat
+order-1  |  * Debugger is active!
+order-1  |  * Debugger PIN: 118-010-644
+order-1  | bought book RPCs for Noobs
+order-1  | 172.18.0.4 - - [28/Oct/2026 10:44:18] "POST /purchase/2 HTTP/1.1" 200 -
