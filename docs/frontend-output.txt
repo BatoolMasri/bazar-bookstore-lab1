@@ -1,0 +1,27 @@
+frontend-1  |  * Serving Flask app 'app'
+frontend-1  |  * Debug mode: on
+frontend-1  | [31m[1mWARNING: This is a development server. Do not use it in a production deployment. Use a production WSGI server instead.[0m
+frontend-1  |  * Running on all addresses (0.0.0.0)
+frontend-1  |  * Running on http://127.0.0.1:5000
+frontend-1  |  * Running on http://172.18.0.4:5000
+frontend-1  | [33mPress CTRL+C to quit[0m
+frontend-1  |  * Restarting with stat
+frontend-1  |  * Debugger is active!
+frontend-1  |  * Debugger PIN: 725-517-203
+frontend-1  | 
+frontend-1  | ========== SEARCH RESULTS ==========
+frontend-1  | Topic: distributed systems
+frontend-1  | Book ID: 1 | Title: How to get a good grade in DOS in 40 minutes a day
+frontend-1  | Book ID: 2 | Title: RPCs for Noobs
+frontend-1  | ====================================
+frontend-1  | 
+frontend-1  | 172.18.0.1 - - [28/Oct/2026 10:47:10] "GET /search/distributed%20systems HTTP/1.1" 200 -
+frontend-1  | 
+frontend-1  | ========== BOOK INFORMATION ==========
+frontend-1  | Book ID : 2
+frontend-1  | Title   : RPCs for Noobs
+frontend-1  | Price   : $50.0
+frontend-1  | Stock   : 0
+frontend-1  | ======================================
+frontend-1  | 
+frontend-1  | 172.18.0.1 - - [28/Oct/2026 10:47:42] "GET /info/2 HTTP/1.1" 200 -

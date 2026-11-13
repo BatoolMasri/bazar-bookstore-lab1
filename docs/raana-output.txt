@@ -1,0 +1,204 @@
+============================================================
+BAZAR.COM - DISTRIBUTED BOOKSTORE
+INTEGRATION AND TEST OUTPUT
+Contributor: Raana
+============================================================
+
+1. DOCKER COMPOSE STARTUP
+------------------------------------------------------------
+Command: docker compose up -d
+
+Result:
+Catalog Service:  UP (port 5001)
+Order Service:    UP (port 5002)
+Frontend Service: UP (port 5000)
+
+Status: PASSED
+
+
+2. FRONTEND AND CATALOG INTEGRATION
+------------------------------------------------------------
+Request:
+GET /info/2
+
+HTTP Status: 200 OK
+
+Response:
+{
+  "price": 50.0,
+  "quantity": 4,
+  "title": "RPCs for Noobs"
+}
+
+Status: PASSED
+
+
+3. CONCURRENT PURCHASE TEST
+------------------------------------------------------------
+Test file:
+tests/test_docker_concurrent.py
+
+Book ID: 2
+Initial Stock: 4
+Concurrent Requests: 10
+
+Results:
+Successful Purchases (HTTP 200): 4
+Out of Stock (HTTP 409): 6
+Other Errors: 0
+Final Stock: 0
+
+TEST PASSED: No overselling detected!
+
+Status: PASSED
+
+
+4. SQLITE ORDER PERSISTENCE
+------------------------------------------------------------
+Database: /data/orders.db
+
+Results:
+TOTAL ORDERS: 5
+COMPLETED TRANSACTIONS: 5
+
+ORDERS:
+(1, 2, 50.0)
+(2, 2, 50.0)
+(3, 2, 50.0)
+(4, 2, 50.0)
+(5, 2, 50.0)
+
+Status: PASSED
+
+
+5. CATALOG SERVICE FAILURE
+------------------------------------------------------------
+Command:
+docker compose stop catalog
+
+Request:
+GET /info/2
+
+HTTP Status:
+503 SERVICE UNAVAILABLE
+
+Response:
+{
+  "error": "Catalog service unavailable or invalid response"
+}
+
+Status: PASSED
+
+
+6. CATALOG SERVICE RECOVERY
+------------------------------------------------------------
+Command:
+docker compose start catalog
+
+Request:
+GET /info/2
+
+HTTP Status:
+200 OK
+
+Response:
+{
+  "price": 50.0,
+  "quantity": 0,
+  "title": "RPCs for Noobs"
+}
+
+Status: PASSED
+
+
+7. ORDER SERVICE FAILURE
+------------------------------------------------------------
+Command:
+docker compose stop order
+
+Request:
+POST /purchase/2
+
+HTTP Status:
+503 SERVICE UNAVAILABLE
+
+Response:
+{
+  "error": "Order service unavailable or invalid response"
+}
+
+Status: PASSED
+
+
+8. ORDER SERVICE RECOVERY
+------------------------------------------------------------
+Command:
+docker compose start order
+
+Request:
+GET /health
+
+HTTP Status:
+200 OK
+
+Response:
+{
+  "service": "order",
+  "status": "running"
+}
+
+Status: PASSED
+
+
+9. DOCKER DATA PERSISTENCE
+------------------------------------------------------------
+Commands:
+docker compose down
+docker compose up -d
+
+Results:
+Catalog SQLite data persisted.
+Order SQLite data persisted.
+Previously completed orders remained available.
+
+Status: PASSED
+
+
+10. AUTOMATIC STOCK COMPENSATION
+------------------------------------------------------------
+Test file:
+tests/test_order_compensation.py
+
+Initial Stock: 5
+Simulated Order Database Failure: YES
+
+HTTP Status: 500
+
+Purchase Response:
+Failed to save order
+stock_restored: True
+
+Final Stock: 5
+Orders Saved: 0
+Transaction Status: compensated
+
+TEST PASSED: Automatic compensation successful
+
+Status: PASSED
+
+
+============================================================
+FINAL SUMMARY
+============================================================
+
+Docker Integration:        PASSED
+Concurrent Purchases:      PASSED
+SQLite Persistence:        PASSED
+Catalog Failure Handling:  PASSED
+Catalog Recovery:          PASSED
+Order Failure Handling:    PASSED
+Order Recovery:            PASSED
+Stock Compensation:        PASSED
+
+All listed test scenarios completed successfully.
+============================================================
